@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — 1PROAGENCY.AI</title>
+<meta name="description" content="Start a project with 1PROAGENCY.AI — send a brief and we'll reply within one business day.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 5 L44 41 H4 Z' fill='%2357F79A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html">
+      <img class="brand-mark" src="assets/logo-mark.png" alt="1PROAGENCY.AI logo" width="34" height="30">
+      <span class="brand-text"><strong>1PROAGENCY.AI</strong><span>AUTOMATE · GROW · SCALE</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="index.html" data-page="index.html">Home</a>
+      <a href="services.html" data-page="services.html">Services</a>
+      <a href="bundles.html" data-page="bundles.html">Bundles</a>
+      <a href="portfolio.html" data-page="portfolio.html">Portfolio</a>
+      <a href="process.html" data-page="process.html">Process</a>
+      <a href="about.html" data-page="about.html">About Us</a>
+      <a href="resources.html" data-page="resources.html">Resources</a>
+      <a href="contact.html" data-page="contact.html">Contact</a>
+    </nav>
+    <div class="nav-utils">
+      <span id="navAuthLoggedOut" class="nav-auth">
+        <a class="btn btn-ghost btn-sm" href="#" data-login-btn>Log In</a>
+      </span>
+      <span id="navAuthLoggedIn" class="nav-auth" hidden>
+        <span class="nav-user-chip nav-cta-desktop"><span class="nav-user-dot">●</span><span id="navAuthName">Client</span></span>
+        <a class="btn btn-ghost btn-sm" href="dashboard.html">Dashboard</a>
+        <a class="btn btn-ghost btn-sm nav-cta-desktop" href="#" data-logout-btn>Log Out</a>
+      </span>
+      <a class="btn btn-primary btn-sm" href="contact.html">Start Project →</a>
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="wrap page-hero">
+    <span class="eyebrow">Project Intake</span>
+    <h1>Tell us what you want to build.</h1>
+    <p class="lead">One form, straight into our CRM. We reply within one business day with next steps or a couple of clarifying questions.</p>
+  </section>
+
+  <section class="wrap section" style="padding-top:0">
+    <div class="grid-2" style="align-items:start;gap:30px">
+      <div class="form-card">
+        <form id="intakeForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="f-name">Name</label>
+              <input id="f-name" type="text" name="name" placeholder="Your name" required>
+            </div>
+            <div class="field">
+              <label for="f-email">Email</label>
+              <input id="f-email" type="email" name="email" placeholder="you@company.com" required>
+            </div>
+            <div class="field">
+              <label for="f-country">Country</label>
+              <input id="f-country" type="text" name="country" placeholder="Country">
+            </div>
+            <div class="field">
+              <label for="f-service">Service or bundle</label>
+              <select id="f-service" name="service">
+                <option value="">Select an option</option>
+                <optgroup label="Bundles">
+                  <option>Automation Foundation</option>
+                  <option>Lead-to-Close Engine</option>
+                  <option>E-commerce Growth Stack</option>
+                  <option>AI Creative Engine</option>
+                  <option>Growth Acquisition Stack</option>
+                  <option>Complete Business OS</option>
+                </optgroup>
+                <optgroup label="Individual services">
+                  <option>AI Automation &amp; n8n</option>
+                  <option>AI Agents &amp; Chatbot</option>
+                  <option>CRM &amp; Lead Systems</option>
+                  <option>Email &amp; Communication</option>
+                  <option>Amazon Services</option>
+                  <option>Shopify &amp; E-commerce</option>
+                  <option>SEO &amp; PPC Growth</option>
+                  <option>Brand &amp; Website</option>
+                  <option>AI UGC &amp; Creative</option>
+                  <option>Delivery &amp; Automation</option>
+                </optgroup>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="field wide">
+              <label for="f-message">Tell us about your project</label>
+              <textarea id="f-message" name="message" placeholder="What are you trying to automate or build?" required></textarea>
+            </div>
+            <div class="field">
+              <label for="f-budget">Budget</label>
+              <input id="f-budget" type="text" name="budget" placeholder="e.g. $500–$1000">
+            </div>
+            <div class="field">
+              <label for="f-deadline">Timeline</label>
+              <input id="f-deadline" type="text" name="deadline" placeholder="e.g. 2–4 weeks">
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" style="margin-top:18px">Send Project Brief →</button>
+          <p class="form-status" role="status"></p>
+        </form>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Why teams choose us</h3>
+          <ul class="checklist" style="margin-top:12px">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>6+ years building automation systems</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>500+ projects delivered</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>One specialist, start to finish — no hand-offs</li>
+          </ul>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h3>What happens next</h3>
+          <ul class="checklist" style="margin-top:12px">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Your brief lands straight in our CRM</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>We reply within one business day</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>We confirm scope, price and timeline before anything starts</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="index.html">
+          <img class="brand-mark" src="assets/logo-mark.png" alt="1PROAGENCY.AI logo" width="34" height="30">
+          <span class="brand-text"><strong>1PROAGENCY.AI</strong><span>AUTOMATE · GROW · SCALE</span></span>
+        </a>
+        <p>AI automation, growth systems and digital-business build-outs — by 1PROAGENCY.AI. Automate the busywork, grow the pipeline, scale what works.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="bundles.html">Bundles</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="process.html">Process</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="resources.html">Resources</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="dashboard.html">Client Dashboard</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Get in touch</h4>
+        <ul>
+          <li><a href="contact.html">Send a project brief →</a></li>
+          <li><a href="bundles.html">View pricing →</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom footer-bottom-center">
+      <span>© <span data-year></span> 1PROAGENCY.AI — Automate. Grow. Scale.</span>
+    </div>
+  </div>
+</footer>
+
+<button class="chat-launcher" type="button" aria-label="Open chat with 1PROAGENCY AI Consultant" aria-haspopup="dialog">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+</button>
+<div class="chat-panel" role="dialog" aria-label="1PROAGENCY AI Consultant chat">
+  <div class="chat-head">
+    <div class="chat-avatar" aria-hidden="true"></div>
+    <div>
+      <strong>1PROAGENCY AI Consultant</strong>
+      <span>● Online</span>
+    </div>
+    <button class="chat-close" type="button" aria-label="Close chat">✕</button>
+  </div>
+  <div class="chat-messages">
+    <div class="msg bot">Hi! I'm your AI Business Consultant. I can help with services, bundles, pricing, process, or starting a project. How can I help today?</div>
+  </div>
+  <div class="chat-quick">
+    <button type="button">Tell me about your services</button>
+    <button type="button">Which bundle is best for me?</button>
+    <button type="button">How does your automation work?</button>
+    <button type="button">I want to start a project</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" placeholder="Type your message…" aria-label="Type your message">
+    <button type="button" aria-label="Send message">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>
