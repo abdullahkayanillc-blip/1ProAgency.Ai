@@ -3,6 +3,12 @@
   "use strict";
 
   var WEBHOOK_URL = "https://proagancy.app.n8n.cloud/webhook/proagency-intake";
+  /*
+   * Reliable public form endpoint. This prevents a browser/CORS/n8n outage
+   * from making a visitor's contact submission fail.
+   * n8n remains the automation/CRM destination when it is available.
+   */
+  var FORMSPREE_URL = "https://formspree.io/f/mjyvabvo";
 
   /* ---------- year ---------- */
   document.querySelectorAll("[data-year]").forEach(function (el) {
@@ -40,11 +46,34 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     }).then(function (res) {
-      if (!res.ok) throw new Error("bad response");
+      if (!res.ok) throw new Error("n8n webhook failed");
       return res;
     });
   }
 
+  function postToReliableForm(payload) {
+    var body = new URLSearchParams();
+    Object.keys(payload).forEach(function (key) {
+      if (payload[key] != null) body.append(key, String(payload[key]));
+    });
+    return fetch(FORMSPREE_URL, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: body.toString(),
+    }).then(function (res) {
+      if (!res.ok) throw new Error("form endpoint failed");
+      return res;
+    });
+  }
+
+  function postToWebhookWithReliableFallback(payload) {
+    return postToWebhook(payload).catch(function () {
+      return postToReliableForm(payload);
+    });
+  }
   function saveLocalFallback(key, payload) {
     try {
       var existing = JSON.parse(localStorage.getItem(key) || "[]");
@@ -92,7 +121,7 @@
       data.submitted_at = new Date().toISOString();
       status.textContent = "Sending your project brief…";
       status.className = "form-status pending";
-      postToWebhook(data)
+       postToWebhookWithReliableFallback(data)
         .then(function () {
           status.textContent = "Thanks — your request has been received. We reply within one business day.";
           status.className = "form-status ok";
