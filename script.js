@@ -1,220 +1,96 @@
-/* 1PROAGENCY.AI — shared site behaviour */
+/* Shared site behavior. No browser-only fallback is treated as delivery. */
 (function () {
   "use strict";
-
   var WEBHOOK_URL = "https://proagancy.app.n8n.cloud/webhook/proagency-intake";
-  /*
-   * Reliable public form endpoint. This prevents a browser/CORS/n8n outage
-   * from making a visitor's contact submission fail.
-   * n8n remains the automation/CRM destination when it is available.
-   */
   var FORMSPREE_URL = "https://formspree.io/f/mjyvabvo";
-
-  /* ---------- year ---------- */
-  document.querySelectorAll("[data-year]").forEach(function (el) {
-    el.textContent = new Date().getFullYear();
-  });
-
-  /* ---------- active nav link ---------- */
-  var here = (location.pathname.split("/").pop() || "index.html");
+  document.querySelectorAll("[data-year]").forEach(function (el) { el.textContent = new Date().getFullYear(); });
+  var here = location.pathname.split("/").pop() || "index.html";
   document.querySelectorAll(".nav-links a[data-page]").forEach(function (a) {
     if (a.getAttribute("data-page") === here) a.setAttribute("aria-current", "page");
   });
-
-  /* ---------- mobile nav toggle ---------- */
-  var navToggle = document.querySelector(".nav-toggle");
-  var navLinks = document.querySelector(".nav-links");
+  var navToggle = document.querySelector(".nav-toggle"), navLinks = document.querySelector(".nav-links");
   if (navToggle && navLinks) {
     navToggle.addEventListener("click", function () {
       navLinks.classList.toggle("open");
-      var open = navLinks.classList.contains("open");
-      navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      navToggle.setAttribute("aria-expanded", navLinks.classList.contains("open") ? "true" : "false");
     });
     navLinks.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function () { navLinks.classList.remove("open"); });
+      a.addEventListener("click", function () { navLinks.classList.remove("open"); navToggle.setAttribute("aria-expanded", "false"); });
     });
   }
-
-  /* Dark theme only — no toggle, no system-preference override. */
-
-  /* Client login/signup/logout now lives in auth.js (real Auth0 session). */
-
-  /* ---------- generic webhook post ---------- */
   function postToWebhook(payload) {
-    return fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }).then(function (res) {
-      if (!res.ok) throw new Error("n8n webhook failed");
-      return res;
-    });
+    return fetch(WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+      .then(function (res) { if (!res.ok) throw new Error("Webhook failed"); return res; });
   }
-
   function postToReliableForm(payload) {
     var body = new URLSearchParams();
-    Object.keys(payload).forEach(function (key) {
-      if (payload[key] != null) body.append(key, String(payload[key]));
-    });
-    return fetch(FORMSPREE_URL, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: body.toString(),
-    }).then(function (res) {
-      if (!res.ok) throw new Error("form endpoint failed");
-      return res;
-    });
+    Object.keys(payload).forEach(function (key) { if (payload[key] != null) body.append(key, String(payload[key])); });
+    return fetch(FORMSPREE_URL, { method: "POST", headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() })
+      .then(function (res) { if (!res.ok) throw new Error("Form endpoint failed"); return res; });
   }
-
-  function postToWebhookWithReliableFallback(payload) {
-    return postToWebhook(payload).catch(function () {
-      return postToReliableForm(payload);
-    });
-  }
-  function saveLocalFallback(key, payload) {
-    try {
-      var existing = JSON.parse(localStorage.getItem(key) || "[]");
-      existing.push(payload);
-      localStorage.setItem(key, JSON.stringify(existing));
-    } catch (err) { /* ignore */ }
-  }
-
-  /* This exact site is also previewed inside a Claude artifact sandbox, which
-   * blocks outgoing requests to anything outside claude.ai — so the webhook
-   * call above will always "fail" there, even though nothing is wrong. Once
-   * this is deployed for real (Cloudflare Pages, your own domain, etc.) this
-   * check is false and the normal error message is used instead. */
-  function inPreviewSandbox() {
-    return /claudeusercontent\.com$|claude\.site$/.test(window.location.hostname);
-  }
-  window.PROAGENCY_PREVIEW_SANDBOX = inPreviewSandbox();
-  function webhookFailMessage() {
-    return inPreviewSandbox()
-      ? "This live preview can't reach outside services — that's expected here, not a bug. It'll reach your real n8n webhook once deployed."
-      : "Saved on this device — we couldn't reach the server just now. Please try again shortly.";
-  }
-
-  /* ---------- intake / contact form ---------- */
+  function deliveryError() { return "Could not send your message. Please try again or use the Contact page."; }
   var intakeForm = document.querySelector("#intakeForm");
   if (intakeForm) {
     var params = new URLSearchParams(location.search);
-    var serviceField = intakeForm.querySelector('[name="service"]');
-    var msgField = intakeForm.querySelector('[name="message"]');
+    var serviceField = intakeForm.querySelector('[name="service"]'), msgField = intakeForm.querySelector('[name="message"]');
     if (serviceField && params.get("service")) {
       var wanted = params.get("service");
-      Array.prototype.forEach.call(serviceField.options, function (opt) {
-        if (opt.value === wanted || opt.textContent.trim() === wanted) opt.selected = true;
-      });
+      Array.prototype.forEach.call(serviceField.options, function (opt) { if (opt.value === wanted || opt.textContent.trim() === wanted) opt.selected = true; });
     }
-    if (msgField && params.get("bundle")) {
-      msgField.value = "I'm interested in the " + params.get("bundle") + " bundle. ";
-    }
-
+    if (msgField && params.get("bundle")) msgField.value = "I'm interested in the " + params.get("bundle") + " bundle. ";
     intakeForm.addEventListener("submit", function (e) {
       e.preventDefault();
       var status = intakeForm.querySelector(".form-status");
       var data = Object.fromEntries(new FormData(intakeForm).entries());
-      data.source = "website_contact";
-      data.submitted_at = new Date().toISOString();
-      status.textContent = "Sending your project brief…";
-      status.className = "form-status pending";
-       postToWebhookWithReliableFallback(data)
-        .then(function () {
-          status.textContent = "Thanks — your request has been received. We reply within one business day.";
-          status.className = "form-status ok";
-          intakeForm.reset();
-        })
-        .catch(function () {
-          saveLocalFallback("1pa_pending_leads", data);
-          status.textContent = webhookFailMessage();
-          status.className = "form-status err";
-        });
+      data.source = "website_contact"; data.submitted_at = new Date().toISOString();
+      status.textContent = "Sending your project brief…"; status.className = "form-status pending";
+      postToWebhook(data).catch(function () { return postToReliableForm(data); }).then(function () {
+        status.textContent = "Thanks — your request has been received."; status.className = "form-status ok"; intakeForm.reset();
+      }).catch(function () { status.textContent = deliveryError(); status.className = "form-status err"; });
     });
   }
-
-  /* ---------- newsletter form ---------- */
   var newsForm = document.querySelector("#newsletterForm");
-  if (newsForm) {
-    newsForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var status = newsForm.querySelector(".form-status");
-      var data = Object.fromEntries(new FormData(newsForm).entries());
-      data.source = "newsletter_signup";
-      data.submitted_at = new Date().toISOString();
-      status.textContent = "Adding you to the list…";
-      status.className = "form-status pending";
-      postToWebhook(data)
-        .then(function () {
-          status.textContent = "You're on the list.";
-          status.className = "form-status ok";
-          newsForm.reset();
-        })
-        .catch(function () {
-          saveLocalFallback("1pa_pending_leads", data);
-          status.textContent = webhookFailMessage();
-          status.className = "form-status err";
-        });
-    });
-  }
-
-  /* ---------- chat widget ---------- */
-  var launcher = document.querySelector(".chat-launcher");
-  var panel = document.querySelector(".chat-panel");
-  var closeBtn = document.querySelector(".chat-close");
-  var messages = document.querySelector(".chat-messages");
-  var quickWrap = document.querySelector(".chat-quick");
-  var chatInput = document.querySelector(".chat-input-row input");
+  if (newsForm) newsForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var status = newsForm.querySelector(".form-status");
+    var data = Object.fromEntries(new FormData(newsForm).entries());
+    data.source = "newsletter_signup"; data.submitted_at = new Date().toISOString();
+    status.textContent = "Adding you to the list…"; status.className = "form-status pending";
+    postToWebhook(data).then(function () {
+      status.textContent = "You're on the list."; status.className = "form-status ok"; newsForm.reset();
+    }).catch(function () { status.textContent = deliveryError(); status.className = "form-status err"; });
+  });
+  var launcher = document.querySelector(".chat-launcher"), panel = document.querySelector(".chat-panel");
+  var closeBtn = document.querySelector(".chat-close"), messages = document.querySelector(".chat-messages");
+  var quickWrap = document.querySelector(".chat-quick"), chatInput = document.querySelector(".chat-input-row input");
   var chatSend = document.querySelector(".chat-input-row button");
-
   var CANNED = {
-    "Tell me about your services": "We build AI Automation & n8n systems, AI agents & chatbots, CRM & lead pipelines, Amazon (FBA/Wholesale/Private Label), Shopify stores, SEO & PPC, brand/web, and AI UGC creative. Full list is on the Services page.",
-    "Which bundle is best for me?": "Starting out → Automation Foundation ($299). Chasing leads → Lead-to-Close Engine ($699). Running a store → E-commerce Growth Stack ($999). Want it all → Complete Business OS ($1999). Check the Bundles page for the full breakdown.",
-    "How does your automation work?": "Every system follows the same six-stage pipeline: Capture → Normalize → Decide → Act → Verify → Report. It's on the Process page with the full technical walkthrough.",
-    "I want to start a project": "Great — the fastest way is the Contact page project brief. Tell us the service, budget and timeline and we'll reply within a business day.",
+    "Tell me about your services": "We offer AI automation, n8n workflows, CRM integrations and business systems. See the Services page for details.",
+    "Which bundle is best for me?": "Compare the available options on the Bundles page, or send us a project brief for a recommendation.",
+    "How does your automation work?": "Our proposed pipeline is Capture → Normalize → Decide → Act → Verify → Report. See the Process page for details.",
+    "I want to start a project": "Please use the Contact page project brief to tell us your requirements."
   };
-
   function addMessage(text, who) {
-    var div = document.createElement("div");
-    div.className = "msg " + who;
-    div.textContent = text;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
+    if (!messages) return;
+    var div = document.createElement("div"); div.className = "msg " + who; div.textContent = text;
+    messages.appendChild(div); messages.scrollTop = messages.scrollHeight;
   }
-
-  if (launcher && panel) {
-    launcher.addEventListener("click", function () {
-      panel.classList.toggle("open");
-      if (panel.classList.contains("open") && chatInput) chatInput.focus();
-    });
-  }
+  if (launcher && panel) launcher.addEventListener("click", function () {
+    panel.classList.toggle("open"); if (panel.classList.contains("open") && chatInput) chatInput.focus();
+  });
   if (closeBtn && panel) closeBtn.addEventListener("click", function () { panel.classList.remove("open"); });
-
-  if (quickWrap) {
-    quickWrap.querySelectorAll("button").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var q = btn.textContent.trim();
-        addMessage(q, "user");
-        window.setTimeout(function () {
-          addMessage(CANNED[q] || "Good question — the Services and Process pages cover that in detail.", "bot");
-        }, 350);
-      });
+  if (quickWrap) quickWrap.querySelectorAll("button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var q = btn.textContent.trim(); addMessage(q, "user");
+      window.setTimeout(function () { addMessage(CANNED[q] || "Please see the Services and Process pages for details.", "bot"); }, 350);
     });
-  }
-
+  });
   function sendChatMessage() {
     if (!chatInput || !chatInput.value.trim()) return;
-    var text = chatInput.value.trim();
-    addMessage(text, "user");
-    chatInput.value = "";
-    postToWebhook({ source: "chat_widget", message: text, submitted_at: new Date().toISOString() }).catch(function () {
-      saveLocalFallback("1pa_pending_leads", { source: "chat_widget", message: text });
-    });
-    window.setTimeout(function () {
-      addMessage("Thanks — that's been logged for the team. For a full proposal, use the Contact page project brief.", "bot");
-    }, 350);
+    var text = chatInput.value.trim(); addMessage(text, "user"); chatInput.value = "";
+    postToWebhook({ source: "chat_widget", message: text, submitted_at: new Date().toISOString() })
+      .then(function () { addMessage("Your message was sent. For a full proposal, use the Contact page project brief.", "bot"); })
+      .catch(function () { addMessage("Your message was not delivered. Please use the Contact page to try again.", "bot"); });
   }
   if (chatSend) chatSend.addEventListener("click", sendChatMessage);
   if (chatInput) chatInput.addEventListener("keydown", function (e) { if (e.key === "Enter") sendChatMessage(); });
