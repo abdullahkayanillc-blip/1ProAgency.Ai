@@ -37,10 +37,12 @@
     if (label && isAuthed) label.textContent = user.given_name || user.name || user.email || "Client";
   }
   function initNav() {
+    if (!CONFIGURED) {
+      document.querySelectorAll("[data-login-btn], [data-signup-btn]").forEach(function (btn) { btn.hidden = true; });
+    }
     document.querySelectorAll("[data-login-btn], [data-signup-btn]").forEach(function (btn) {
       btn.addEventListener("click", async function (e) {
         e.preventDefault();
-        if (!CONFIGURED) { alert("Client login is not configured yet."); return; }
         try { var c = await getClient(); await c.loginWithRedirect(btn.hasAttribute("data-signup-btn") ? { authorizationParams: { screen_hint: "signup" } } : undefined); }
         catch (err) { alert("Couldn't reach the login service. Please try again."); }
       });
@@ -53,7 +55,11 @@
       });
     });
     if (CONFIGURED) session().then(function (s) { renderNav(s.authed, s.user); }).catch(function () { renderNav(false); });
-    else renderNav(false);
+    else {
+      renderNav(false);
+      var loggedOut = document.getElementById("navAuthLoggedOut");
+      if (loggedOut) loggedOut.hidden = true;
+    }
   }
   async function initDashboard() {
     var out = document.getElementById("dashLoggedOut"), inn = document.getElementById("dashLoggedIn");
@@ -70,11 +76,9 @@
       if (email) email.textContent = s.user.email || "";
       var banner = document.getElementById("dashVerifyBanner");
       if (banner) banner.hidden = !!s.user.email_verified;
-      var servicesLoading = document.getElementById("dashServicesLoading");
       var servicesError = document.getElementById("dashServicesError");
-      if (servicesLoading) servicesLoading.hidden = true;
       if (servicesError) {
-        servicesError.textContent = "Service records are unavailable until a secure client portal is connected. Please contact us for an update.";
+        servicesError.textContent = "Service records are currently unavailable. Please contact us for project status.";
         servicesError.hidden = false;
       }
       // Never send a client email to an unauthenticated lookup endpoint.

@@ -61,8 +61,7 @@
 
     <div class="dash-state card" id="dashNotConfigured" hidden>
       <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg></div>
-      <h3>Client login isn't connected yet</h3>
-      <p style="color:var(--text-muted);margin-top:10px;font-size:14px">This page is fully built and ready — it just needs a free Auth0 account wired in. See <strong>README.md → "Activate Client Login"</strong> for the exact steps.</p>
+      <h3>Client login is not available yet</h3>
     </div>
 
     <div class="dash-state card" id="dashLoggedOut" hidden>
@@ -91,16 +90,14 @@
 
       <div class="card">
         <h3>Your services</h3>
-        <p id="dashServicesLoading" style="color:var(--text-muted);margin-top:10px;font-size:14px">Loading your projects…</p>
-        <p id="dashServicesEmpty" hidden style="color:var(--text-muted);margin-top:10px;font-size:14px">No requests on file yet for this email — once you submit a project brief, it'll show up here.</p>
-        <p id="dashServicesError" hidden style="color:var(--text-muted);margin-top:10px;font-size:14px">Couldn't load your projects right now — the lookup service may still need to be set up (see README.md).</p>
+        <p id="dashServicesError" hidden style="color:var(--text-muted);margin-top:10px;font-size:14px">Service records are currently unavailable. Please contact us for project status.</p>
         <ul class="dash-services" id="dashServicesList"></ul>
       </div>
 
       <div class="cta-band" style="margin-top:24px">
         <div>
           <h2>Need something new?</h2>
-          <p>Start another project brief — it'll show up here once it's logged.</p>
+          <p>For project updates, please contact us.</p>
         </div>
         <a class="btn btn-primary" href="contact.html">Start a project →</a>
       </div>
