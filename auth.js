@@ -1,6 +1,5 @@
-/* Client login UI only. Private client records must never be looked up by email alone.
- * Configure Auth0 and a server that verifies access tokens and record ownership
- * before enabling any client service listing. */
+/* Future client-record access requires server-side JWT verification, a verified
+ * email, and ownership checks. Never look up CRM records by browser-supplied email. */
 (function () {
   "use strict";
   var AUTH0_DOMAIN = "YOUR_AUTH0_DOMAIN.auth0.com";
@@ -38,13 +37,19 @@
   }
   function initNav() {
     if (!CONFIGURED) {
-      document.querySelectorAll("[data-login-btn], [data-signup-btn]").forEach(function (btn) { btn.hidden = true; });
+      document.querySelectorAll("[data-login-btn], [data-signup-btn], [data-logout-btn]").forEach(function (btn) {
+        btn.hidden = true;
+      });
+      renderNav(false);
+      var loggedOut = document.getElementById("navAuthLoggedOut");
+      if (loggedOut) loggedOut.hidden = true;
+      return;
     }
     document.querySelectorAll("[data-login-btn], [data-signup-btn]").forEach(function (btn) {
       btn.addEventListener("click", async function (e) {
         e.preventDefault();
         try { var c = await getClient(); await c.loginWithRedirect(btn.hasAttribute("data-signup-btn") ? { authorizationParams: { screen_hint: "signup" } } : undefined); }
-        catch (err) { alert("Couldn't reach the login service. Please try again."); }
+        catch (err) { console.error("Auth0 login failed", err); }
       });
     });
     document.querySelectorAll("[data-logout-btn]").forEach(function (btn) {
@@ -55,11 +60,6 @@
       });
     });
     if (CONFIGURED) session().then(function (s) { renderNav(s.authed, s.user); }).catch(function () { renderNav(false); });
-    else {
-      renderNav(false);
-      var loggedOut = document.getElementById("navAuthLoggedOut");
-      if (loggedOut) loggedOut.hidden = true;
-    }
   }
   async function initDashboard() {
     var out = document.getElementById("dashLoggedOut"), inn = document.getElementById("dashLoggedIn");
