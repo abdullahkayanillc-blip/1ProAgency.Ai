@@ -29,6 +29,14 @@
       .then(function (res) { if (!res.ok) throw new Error("Form endpoint failed"); return res; });
   }
   function deliveryError() { return "Could not send your message. Please try again or use the Contact page."; }
+  function showContactDeliveryError(status) {
+    status.textContent = "Could not send your message. Please contact us directly at ";
+    var link = document.createElement("a");
+    link.href = "mailto:[PRIVACY EMAIL]";
+    link.textContent = "[PRIVACY EMAIL]";
+    status.appendChild(link);
+    status.className = "form-status err";
+  }
   var intakeForm = document.querySelector("#intakeForm");
   if (intakeForm) {
     var params = new URLSearchParams(location.search);
@@ -41,12 +49,25 @@
     intakeForm.addEventListener("submit", function (e) {
       e.preventDefault();
       var status = intakeForm.querySelector(".form-status");
+      if (!intakeForm.reportValidity()) return;
+      var honeypot = intakeForm.querySelector('[name="company_website"]');
+      if (honeypot && honeypot.value) {
+        showContactDeliveryError(status);
+        return;
+      }
+      var submitButton = intakeForm.querySelector('[type="submit"]');
+      if (submitButton) submitButton.disabled = true;
       var data = Object.fromEntries(new FormData(intakeForm).entries());
+      delete data.company_website;
       data.source = "website_contact"; data.submitted_at = new Date().toISOString();
       status.textContent = "Sending your project brief…"; status.className = "form-status pending";
       postToWebhook(data).catch(function () { return postToReliableForm(data); }).then(function () {
         status.textContent = "Thanks — your request has been received."; status.className = "form-status ok"; intakeForm.reset();
-      }).catch(function () { status.textContent = deliveryError(); status.className = "form-status err"; });
+      }).catch(function () {
+        showContactDeliveryError(status);
+      }).finally(function () {
+        if (submitButton) submitButton.disabled = false;
+      });
     });
   }
   var newsForm = document.querySelector("#newsletterForm");

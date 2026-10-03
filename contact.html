@@ -57,6 +57,10 @@
     <div class="grid-2" style="align-items:start;gap:30px">
       <div class="form-card">
         <form id="intakeForm">
+          <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
+            <label for="f-company-website">Leave this field empty</label>
+            <input id="f-company-website" type="text" name="company_website" tabindex="-1" autocomplete="off">
+          </div>
           <div class="form-grid">
             <div class="field">
               <label for="f-name">Name</label>
@@ -109,6 +113,13 @@
               <label for="f-deadline">Timeline</label>
               <input id="f-deadline" type="text" name="deadline" placeholder="e.g. 2–4 weeks">
             </div>
+          </div>
+          <div class="field" style="margin-top:16px">
+            <p id="privacy-note" style="color:var(--text-muted);font-size:13px">We collect your name, email, country, service or bundle, project details, budget and timeline to review and respond to your inquiry. Your brief goes to our intake system and may be received by our project team and form-processing providers. We retain it for [RETENTION PERIOD]. Privacy questions: <a href="mailto:[PRIVACY EMAIL]">[PRIVACY EMAIL]</a>.</p>
+            <label for="f-consent" style="display:flex;gap:10px;align-items:flex-start;margin-top:12px">
+              <input id="f-consent" type="checkbox" name="consent" required aria-describedby="privacy-note" style="margin-top:4px">
+              <span>I agree that 1PROAGENCY.AI may use the information above to respond to my inquiry.</span>
+            </label>
           </div>
           <button class="btn btn-primary btn-block" type="submit" style="margin-top:18px">Send Project Brief →</button>
           <p class="form-status" role="status"></p>
